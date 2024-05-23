@@ -61,98 +61,111 @@ class ErrorHandler:
         str
             The classification of the error.
         """
-        # Network-related errors
-        if isinstance(error, (ProviderConnectionError, aiohttp.ClientConnectionError, aiohttp.ClientResponseError,
-                              aiohttp.ClientPayloadError, aiohttp.ClientOSError, aiohttp.InvalidURL,
-                              requests.exceptions.ConnectionError, requests.exceptions.Timeout)):
-            return "connection_to_node"
+        match error:
+            case (ProviderConnectionError() | aiohttp.ClientConnectionError() |
+                  aiohttp.ClientResponseError() | aiohttp.ClientPayloadError() |
+                  aiohttp.ClientOSError() | aiohttp.InvalidURL() |
+                  requests.exceptions.ConnectionError() | requests.exceptions.Timeout()):
+                return "connection_to_node"
 
-        # Address-related errors
-        elif isinstance(error, InvalidAddress):
-            return "invalid_address"
-        elif isinstance(error, ValueError) and "when sending a str, it must be a hex string" in str(error):
-            return "invalid_address_format"
-        elif isinstance(error, ValueError) and "Unknown format" in str(error):
-            return "invalid_address_format"
+            case InvalidAddress():
+                return "invalid_address"
 
-        # Validation errors
-        elif isinstance(error, Web3ValidationError):
-            return "validation"
+            case ValueError() if "when sending a str, it must be a hex string" in str(error):
+                return "invalid_address_format"
 
-        # ABI-related errors (with specific checks for ValueError)
-        elif isinstance(error, BadFunctionCallOutput):
-            return "bad_function_call_output"
-        elif isinstance(error, InvalidEventABI):
-            return "invalid_event_abi"
-        elif isinstance(error, ABIFunctionNotFound):
-            return "abi_function_not_found"
-        elif isinstance(error, ABIEventFunctionNotFound):
-            return "abi_event_function_not_found"
-        elif isinstance(error, MismatchedABI):
-            return "mismatched_abi"
-        elif isinstance(error, ValueError) and "Could not format invalid value" in str(error):
-            return "abi_error"
-        elif isinstance(error, FallbackNotFound):
-            return "fallback_not_found"
-        elif isinstance(error, LogTopicError):
-            return "log_topic_error"
+            case ValueError() if "Unknown format" in str(error):
+                return "invalid_address_format"
 
-        # Blockchain data-related errors
-        elif isinstance(error, BlockNumberOutofRange):
-            return "block_number_out_of_range"
-        elif isinstance(error, BlockNotFound):
-            return "block_not_found"
-        elif isinstance(error, TransactionNotFound):
-            return "transaction_not_found"
-        elif isinstance(error, NameNotFound):
-            return "name_not_found"
-        elif isinstance(error, StaleBlockchain):
-            return "stale_blockchain"
+            case Web3ValidationError():
+                return "validation"
 
-        # Request handling errors
-        elif isinstance(error, CannotHandleRequest):
-            return "cannot_handle_request"
-        elif isinstance(error, TooManyRequests):
-            return "too_many_requests"
-        elif isinstance(error, MultipleFailedRequests):
-            return "multiple_failed_requests"
-        elif isinstance(error, MethodUnavailable):
-            return "method_unavailable"
+            case BadFunctionCallOutput():
+                return "bad_function_call_output"
 
-        # Contract execution errors
-        elif isinstance(error, ContractLogicError):
-            return "contract_logic_error"
-        elif isinstance(error, TimeExhausted):
-            return "time_exhausted"
+            case InvalidEventABI():
+                return "invalid_event_abi"
 
-        # Data format errors
-        elif isinstance(error, ExtraDataLengthError):
-            return "extra_data_length_error"
-        elif isinstance(error, NoABIFunctionsFound):
-            return "no_abi_functions_found"
-        elif isinstance(error, NoABIFound):
-            return "no_abi_found"
-        elif isinstance(error, NoABIEventsFound):
-            return "no_abi_events_found"
-        elif isinstance(error, InsufficientData):
-            return "insufficient_data"
+            case ABIFunctionNotFound():
+                return "abi_function_not_found"
 
-        # Transaction-related errors
-        elif isinstance(error, InvalidTransaction):
-            return "invalid_transaction"
-        elif isinstance(error, TransactionTypeMismatch):
-            return "transaction_type_mismatch"
+            case ABIEventFunctionNotFound():
+                return "abi_event_function_not_found"
 
-        # Response format errors
-        elif isinstance(error, BadResponseFormat):
-            return "bad_response_format"
+            case MismatchedABI():
+                return "mismatched_abi"
 
-        # Unicode errors
-        elif isinstance(error, UnicodeError):
-            return "connection_to_node"
+            case ValueError() if "Could not format invalid value" in str(error):
+                return "abi_error"
 
-        else:
-            return "unknown"
+            case FallbackNotFound():
+                return "fallback_not_found"
+
+            case LogTopicError():
+                return "log_topic_error"
+
+            case BlockNumberOutofRange():
+                return "block_number_out_of_range"
+
+            case BlockNotFound():
+                return "block_not_found"
+
+            case TransactionNotFound():
+                return "transaction_not_found"
+
+            case NameNotFound():
+                return "name_not_found"
+
+            case StaleBlockchain():
+                return "stale_blockchain"
+
+            case CannotHandleRequest():
+                return "cannot_handle_request"
+
+            case TooManyRequests():
+                return "too_many_requests"
+
+            case MultipleFailedRequests():
+                return "multiple_failed_requests"
+
+            case MethodUnavailable():
+                return "method_unavailable"
+
+            case ContractLogicError():
+                return "contract_logic_error"
+
+            case TimeExhausted():
+                return "time_exhausted"
+
+            case ExtraDataLengthError():
+                return "extra_data_length_error"
+
+            case NoABIFunctionsFound():
+                return "no_abi_functions_found"
+
+            case NoABIFound():
+                return "no_abi_found"
+
+            case NoABIEventsFound():
+                return "no_abi_events_found"
+
+            case InsufficientData():
+                return "insufficient_data"
+
+            case InvalidTransaction():
+                return "invalid_transaction"
+
+            case TransactionTypeMismatch():
+                return "transaction_type_mismatch"
+
+            case BadResponseFormat():
+                return "bad_response_format"
+
+            case UnicodeError():
+                return "connection_to_node"
+
+            case _:
+                return "unknown"
 
     @staticmethod
     def get_error_message(error: Exception) -> str:
